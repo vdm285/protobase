@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProtoBase - Meta Database</title>
+    
+    <!-- Load React, ReactDOM, and Babel for in-browser JSX transpilation -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-neutral-900 text-neutral-100 font-sans selection:bg-indigo-500/30">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const INITIAL_PROJECTS = [
+            { id: '1', name: 'Restaurant Impressions' },
+            { id: '2', name: 'App Ideas Backlog' },
+        ];
+
+        const INITIAL_DATA = {
+            '1': [
+                { id: 'r1', Name: 'La Condesa Bistro', Vibe: 'Cozy, dim lighting', Food_Rating: '8/10', Notes: 'Get the truffle fries. Wife hated the music.' }
+            ]
+        };
+
+        function App() {
+            const [projects, setProjects] = useState(() => {
+                const saved = localStorage.getItem('protobase_projects');
+                return saved ? JSON.parse(saved) : INITIAL_PROJECTS;
+            });
+            const [activeProjectId, setActiveProjectId] = useState('1');
+            
+            const [database, setDatabase] = useState(() => {
+                const saved = localStorage.getItem('protobase_data');
+                return saved ? JSON.parse(saved) : INITIAL_DATA;
+            });
+            const [viewMode, setViewMode] = useState('visual'); 
+
+            const [newEntryFields, setNewEntryFields] = useState([{ key: '', value: '' }]);
+
+            useEffect(() => {
+                localStorage.setItem('protobase_projects', JSON.stringify(projects));
+            }, [projects]);
+
+            useEffect(() => {
+                localStorage.setItem('protobase_data', JSON.stringify(database));
+            }, [database]);
+
+            const activeProject = projects.find(p => p.id === activeProjectId);
+            const activeData = database[activeProjectId] || [];
+
+            useEffect(() => {
+                if (activeData.length > 0) {
+                    const lastEntry = activeData[activeData.length - 1];
+                    const keys = Object.keys(lastEntry).filter(k => k !== 'id');
+                    setNewEntryFields(keys.map(k => ({ key: k, value: '' })));
+                } else {
+                    setNewEntryFields([{ key: '', value: '' }]);
+                }
+            }, [activeProjectId]);
+
+            const handleAddField = () => setNewEntryFields([...newEntryFields, { key: '', value: '' }]);
+
+            const handleFieldChange = (index, field, newValue) => {
+                const updated = [...newEntryFields];
+                updated[index][field] = newValue;
+                setNewEntryFields(updated);
+            };
+
+            const handleRemoveField = (index) => setNewEntryFields(newEntryFields.filter((_, i) => i !== index));
+
+            const handleSaveEntry = () => {
+                const validFields = newEntryFields.filter(f => f.key.trim() !== '' || f.value.trim() !== '');
+                if (validFields.length === 0) return;
+
+                const newEntry = { id: Date.now().toString() };
+                validFields.forEach(f => {
+                    const keyName = f.key.trim() || 'Unnamed_Property';
+                    newEntry[keyName] = f.value;
+                });
+
+                setDatabase(prev => ({
+                    ...prev,
+                    [activeProjectId]: [...(prev[activeProjectId] || []), newEntry]
+                }));
+                setNewEntryFields(newEntryFields.map(f => ({ ...f, value: '' })));
+            };
+
+            const exportJSON = () => {
+                const dataStr = JSON.stringify(activeData, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                const exportFileDefaultName = `${activeProject?.name.replace(/\s+/g, '_')}_db.json`;
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+            };
+
+            const copyToClipboard = () => navigator.clipboard.writeText(JSON.stringify(activeData, null, 2));
+
+            return (
+                <div className="flex h-screen flex-col md:flex-row">
+                    {/* Sidebar */}
+                    <div className="w-full md:w-64 bg-neutral-950 border-r border-neutral-800 flex flex-col flex-shrink-0 md:h-screen">
+                        <div className="p-4 border-b border-neutral-800 flex items-center gap-2 text-indigo-400">
+                            <span className="text-xl">🗄️</span>
+                            <h1 className="font-bold text-lg tracking-tight">ProtoBase</h1>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-3 space-y-1">
+                            <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-3 px-2">Databases</div>
+                            {projects.map(project => (
+                                <button
+                                    key={project.id}
+                                    onClick={() => setActiveProjectId(project.id)}
+                                    className={`w-full text-left flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
+                                        activeProjectId === project.id 
+                                            ? 'bg-indigo-500/10 text-indigo-300' 
+                                            : 'text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200'
+                                    }`}
+                                >
+                                    <span>📁</span>
+                                    <span className="truncate text-sm">{project.name}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Main Content */}
+                    <div className="flex-1 flex flex-col h-screen overflow-hidden">
+                        <header className="h-16 border-b border-neutral-800 flex items-center justify-between px-4 md:px-6 bg-neutral-900 shrink-0">
+                            <h2 className="text-lg md:text-xl font-semibold text-neutral-100 truncate pr-2">
+                                {activeProject?.name}
+                            </h2>
+                            <div className="flex items-center gap-2 md:gap-3">
+                                <div className="flex bg-neutral-950 rounded-lg p-1 border border-neutral-800 hidden md:flex">
+                                    <button onClick={() => setViewMode('visual')} className={`px-3 py-1.5 text-sm rounded-md transition-all ${viewMode === 'visual' ? 'bg-neutral-800 text-neutral-100' : 'text-neutral-400'}`}>📝 Visual</button>
+                                    <button onClick={() => setViewMode('json')} className={`px-3 py-1.5 text-sm rounded-md transition-all ${viewMode === 'json' ? 'bg-neutral-800 text-neutral-100' : 'text-neutral-400'}`}>💻 JSON</button>
+                                </div>
+                                {/* Mobile view toggle */}
+                                <button onClick={() => setViewMode(viewMode === 'visual' ? 'json' : 'visual')} className="md:hidden p-2 text-neutral-400 border border-neutral-800 rounded-lg">
+                                    {viewMode === 'visual' ? '💻' : '📝'}
+                                </button>
+                                <button onClick={exportJSON} className="flex items-center gap-2 px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm rounded-lg transition-colors">
+                                    ⬇️ <span className="hidden md:inline">Export</span>
+                                </button>
+                            </div>
+                        </header>
+
+                        <main className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col md:flex-row gap-6">
+                            {viewMode === 'visual' ? (
+                                <>
+                                    <div className="w-full md:w-1/3 flex flex-col gap-4">
+                                        <div className="bg-neutral-950 border border-neutral-800 rounded-xl p-4 md:p-5 shadow-lg">
+                                            <h3 className="text-sm font-medium text-neutral-400 uppercase tracking-wider mb-4">⚙️ New Record</h3>
+                                            <div className="space-y-3">
+                                                {newEntryFields.map((field, index) => (
+                                                    <div key={index} className="flex flex-col sm:flex-row gap-2">
+                                                        <input 
+                                                            type="text" placeholder="Property" value={field.key}
+                                                            onChange={(e) => handleFieldChange(index, 'key', e.target.value)}
+                                                            className="w-full sm:w-1/3 bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-200 focus:border-indigo-500 focus:outline-none"
+                                                        />
+                                                        <input 
+                                                            type="text" placeholder="Details..." value={field.value}
+                                                            onChange={(e) => handleFieldChange(index, 'value', e.target.value)}
+                                                            className="w-full sm:w-2/3 bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-neutral-200 focus:border-indigo-500 focus:outline-none"
+                                                        />
+                                                        <button onClick={() => handleRemoveField(index)} className="text-neutral-500 hover:text-red-400 p-2 sm:p-0 self-end sm:self-center">🗑️</button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <div className="mt-4 flex flex-col sm:flex-row gap-2">
+                                                <button onClick={handleAddField} className="flex-1 py-2 border border-dashed border-neutral-700 text-neutral-400 rounded-lg text-sm">➕ Field</button>
+                                                <button onClick={handleSaveEntry} className="flex-1 py-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-100 rounded-lg text-sm">💾 Save</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="w-full md:w-2/3 grid grid-cols-1 gap-3">
+                                        {activeData.map((record) => (
+                                            <div key={record.id} className="bg-neutral-950 border border-neutral-800 rounded-xl p-4 shadow-sm">
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                    {Object.entries(record).filter(([k]) => k !== 'id').map(([key, value]) => (
+                                                        <div key={key}>
+                                                            <span className="text-xs text-neutral-500 uppercase tracking-wider block mb-1">{key}</span>
+                                                            <span className="text-sm text-neutral-200">{value}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="w-full flex flex-col bg-neutral-950 border border-neutral-800 rounded-xl overflow-hidden relative group">
+                                    <button onClick={copyToClipboard} className="absolute top-4 right-4 p-2 bg-neutral-800 text-neutral-300 rounded-lg flex items-center gap-2 text-sm">📋 Copy</button>
+                                    <pre className="p-6 text-sm text-green-400 font-mono overflow-auto h-full">{JSON.stringify(activeData, null, 2)}</pre>
+                                </div>
+                            )}
+                        </main>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
