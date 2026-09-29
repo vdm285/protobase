@@ -17,6 +17,11 @@ Owner: Victor (github.com/vdm285). Stage: learning, portfolio and open source; n
   default may apply after 7 days of silence for technical choices only. Always ask first: force pushes,
   deleting his data, anything posted or sent in his name, logins and passwords.
 - **Pushback:** on logic or design flaws and untested claims (not caution or licence caveats).
+- **Depth:** build quick, ideas deep ("quick" or "deep" from Victor overrides). When our own test
+  contradicts a trusted source, show both sides briefly and test both.
+- **Code and words:** lean code with a short "why" note (not golfed); short, plain text for users;
+  reusable modules. Naming: say if an industry-standard name exists, else propose a few
+  analogy-based names.
 - **Test it ourselves:** when a claim is thin or contested, run a small test: pass mark first, plus a
   control that can fail.
 - **Brief card:** before any unattended agent run, Victor approves a one-screen card (goal, will / won't
@@ -60,7 +65,8 @@ recommended) vs. a live data hub other apps read.
   compressed of third-party scripts per visit; English only.
 - **Security flag:** unpinned CDN scripts run on `vdm285.github.io`, the same origin (and storage)
   as ListoLista, compa-precio and ai-council-workbench. Checkpoint 0 in `ROADMAP.md` fixes this first.
-- Branch `claude/readout-2026-09-25`: this briefing, `ROADMAP.md` draft and the readout. Not merged.
+- This briefing, the `ROADMAP.md` draft and the readout were merged into `main` (pushed 2026-09-29);
+  the readout branch was deleted.
 
 ## Relation to ListoLista (~/projects/listolista)
 Sibling app with the same principles and the same web address. ListoLista's checkpoint-1 build has

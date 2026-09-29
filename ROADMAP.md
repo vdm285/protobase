@@ -88,6 +88,5 @@ Each checkpoint starts only when Victor is comfortable with the previous one.
 - 2026-09-29: working rules from Victor's HQ in `AGENTS.md`; personal details removed from the docs;
   decision column renamed "Suggested default (needs Victor)".
 - 2026-09-25: readout of the first draft (`docs/READOUT-2026-09-25.md`), draft `AGENTS.md` and this
-  roadmap, on branch `claude/readout-2026-09-25` (not merged, not pushed).
-- 2026-04-26: first working draft published (single-file React app, `localStorage`), "for tonight's
-  restaurant run".
+  roadmap (merged into `main` and pushed 2026-09-29; readout branch deleted).
+- 2026-04-26: first working draft published (single-file React app, `localStorage`).
