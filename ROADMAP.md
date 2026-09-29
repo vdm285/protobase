@@ -1,6 +1,6 @@
 # ProtoBase roadmap (single source of truth) — DRAFT
 
-Updated: 2026-09-25. Owner: Victor. Any AI working on this repo reads `AGENTS.md`, then this file,
+Updated: 2026-09-29. Owner: Victor. Any AI working on this repo reads `AGENTS.md`, then this file,
 and updates both when something changes. Newest state at the top of each section.
 
 > **Everything below is a draft proposed by Claude (senior) from reading the code**
@@ -24,7 +24,7 @@ Each checkpoint starts only when Victor is comfortable with the previous one.
 |---|---|---|---|---|
 | 0 | Safety patch | anyone opening the live page | Pinned + verified scripts, no crash on bad storage, no empty/garbled records. Same look. | ⏳ draft; needs Victor's OK to go live |
 | 1 | **Pocket notebook for one** | Victor, on his phone and Mac | Instant, Spanish, offline, installable; create/rename/delete databases; edit/delete records with undo; import/export; tests | 🔜 after the interview |
-| 2 | Data bench for future apps | Victor (+ maybe family) | Opt-in: field types, CSV / spreadsheet export, "copy for an AI prompt", maybe an encrypted shared database via the ListoLista kit | 💤 |
+| 2 | Data bench for future apps | Victor (+ maybe his close circle) | Opt-in: field types, CSV / spreadsheet export, "copy for an AI prompt", maybe an encrypted shared database via the ListoLista kit | 💤 |
 | 3 | Public, open source | anyone | Licence, English, README, contribution rules | 💤 |
 
 ---
@@ -49,7 +49,7 @@ Each checkpoint starts only when Victor is comfortable with the previous one.
 9. ⏳ Phone test on Victor's Android + iPhone (checklist below), then go live.
 
 ## Decisions waiting on Victor (priority order)
-| # | Decision | Why it matters | Default if no answer |
+| # | Decision | Why it matters | Suggested default (needs Victor) |
 |---|---|---|---|
 | D1 | **What is ProtoBase for?** Standalone notebook (exports feed AI prompts / new apps) or live data hub other apps read | Shapes everything; a hub needs a shared address, which weakens ListoLista's security | Standalone notebook + export/import files |
 | D2 | **Stack:** plain JS like ListoLista, or keep React-style components (Preact + htm, ~5 KB, no build) | Speed, shared code, what you want to learn | Plain JS, same build and tests as ListoLista |
@@ -85,6 +85,8 @@ Each checkpoint starts only when Victor is comfortable with the previous one.
 - 💤 Accessibility pass (labels, screen-reader names for icon buttons).
 
 ## Log (newest first)
+- 2026-09-29: working rules from Victor's HQ in `AGENTS.md`; personal details removed from the docs;
+  decision column renamed "Suggested default (needs Victor)".
 - 2026-09-25: readout of the first draft (`docs/READOUT-2026-09-25.md`), draft `AGENTS.md` and this
   roadmap, on branch `claude/readout-2026-09-25` (not merged, not pushed).
 - 2026-04-26: first working draft published (single-file React app, `localStorage`), "for tonight's
